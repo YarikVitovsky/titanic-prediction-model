@@ -5,7 +5,7 @@
 This project goes beyond traditional machine learning to explore the human stories embedded within the Titanic dataset. Using logistic regression and data visualization, we uncover patterns of survival that reveal both the nobility and tragedy of human nature during one of history's most devastating maritime disasters.
 
 **🎯 Key Achievement**: 79% prediction accuracy using logistic regression  
-**📊 Comprehensive Report**: LaTeX document analyzing survival patterns through both mathematical and human perspectives  
+**📊 Project Report**: LaTeX document analyzing survival patterns through both mathematical and human perspectives  
 **🎨 Data Visualizations**: Beautiful matplotlib charts that tell the story behind the statistics
 
 🚀 **Check out the live demo**: [https://titanic-survival-predictor-1.onrender.com/](https://titanic-survival-predictor-1.onrender.com/)
