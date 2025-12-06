@@ -6,7 +6,7 @@ This project goes beyond traditional machine learning to explore the human stori
 
 **🎯 Key Achievement**: 79% prediction accuracy using logistic regression  
 **📊 Project Report**: LaTeX document analyzing survival patterns through both mathematical and human perspectives  
-**🎨 Data Visualizations**: Beautiful matplotlib charts that tell the story behind the statistics
+**🎨 Data Visualizations**: matplotlib charts that tell the story behind the statistics
 
 🚀 **Check out the live demo**: [https://titanic-survival-predictor-1.onrender.com/](https://titanic-survival-predictor-1.onrender.com/)
 
