@@ -62,35 +62,34 @@ def plot_class_survival(df):
 
 # 3. Age Distribution and Survival
 def plot_age_survival(df):
-    # Convert normalized age back to approximate real ages
-    # Assuming the normalization was: (age - mean) / std
-    # We'll create age groups based on normalized values
+    # Load original data to get unscaled ages, filling missing values with the mean
+    original_df = pd.read_csv('data/train.csv')
+    original_df['Age'].fillna(original_df['Age'].mean(), inplace=True)
+    
     df_copy = df.copy()
+    df_copy['Age'] = original_df['Age']
+
+    # Define age bins and labels
+    bins = [0, 15, 25, 35, 50, 100]
+    labels = ["0-15", "16-25", "26-35", "36-50", "51+"]
+    df_copy['AgeGroup'] = pd.cut(df_copy['Age'], bins=bins, labels=labels, right=False)
+
+    # Calculate survival rate per age group
+    age_survival_rate = df_copy.groupby('AgeGroup')['Survived'].mean()
+
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=age_survival_rate.index, y=age_survival_rate.values, palette='viridis')
     
-    # Map normalized age values to approximate age ranges
-    def map_age_group(norm_age):
-        if norm_age < -1.5:
-            return "0-15 (Children)"
-        elif norm_age < -0.5:
-            return "16-25 (Young Adults)"
-        elif norm_age < 0.5:
-            return "26-35 (Adults)"
-        elif norm_age < 1.5:
-            return "36-50 (Middle Age)"
-        else:
-            return "51+ (Elderly)"
-    
-    df_copy['AgeGroup'] = df_copy['Age'].apply(map_age_group)
-    
-    # Create survival analysis by age groups
-    age_survival = df_copy.groupby(['AgeGroup', 'Survived']).size().unstack(fill_value=0)
-    
-    plt.figure(figsize=(12, 6))
-    age_survival.plot(kind='bar', stacked=True, color=['lightcoral', 'lightgreen'], alpha=0.8)
-    plt.title('Age Distribution and Survival Rates', fontsize=16)
+    plt.title('Survival Rate by Age Group', fontsize=16)
     plt.xlabel('Age Groups', fontsize=12)
-    plt.ylabel('Number of Passengers', fontsize=12)
-    plt.legend(['Did Not Survive', 'Survived'], title='Survival')
+    plt.ylabel('Survival Rate', fontsize=12)
+    plt.ylim(0, 1)
+
+    # Add percentage labels on top of each bar
+    for i, v in enumerate(age_survival_rate.values):
+        plt.text(i, v + 0.02, f'{v:.1%}', ha='center', fontsize=12)
+
+    plt.xticks(rotation=0, ha='center')
     plt.tight_layout()
     plt.savefig('images/age_survival.png')
     plt.close()
