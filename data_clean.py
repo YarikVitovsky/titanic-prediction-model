@@ -20,22 +20,21 @@ for col in text_cols:
 
 # print(df['Embarked'].unique())
 
+# Create FamilySize and IsAlone features before scaling
+df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
+df['IsAlone'] = 0
+df.loc[df['FamilySize'] == 1, 'IsAlone'] = 1
+
 df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
 df['Embarked'] = df['Embarked'].map({'S': 0, 'C': 1, 'Q': 2})
 
 # Select numeric columns for scaling, excluding 'Survived'
 numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()  # Convert to a list of column names
-numeric_cols = [col for col in numeric_cols if col != 'Survived']
+numeric_cols = [col for col in numeric_cols if col not in ['Survived', 'FamilySize', 'IsAlone']]
 
 # Scale numeric values
 scaler = StandardScaler()
 df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
-
-# Create FamilySize feature
-df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
-
-# Create IsAlone feature
-df['IsAlone'] = (df['FamilySize'] == 1).astype(int)
 
 # Extract Title from Name
 df['Title'] = df['Name'].str.extract(' ([A-Za-z]+)\\.', expand=False)

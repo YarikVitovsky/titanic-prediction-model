@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 # Load the Titanic dataset
 df = pd.read_csv('data/train_cleaned.csv')  # Replace with your cleaned dataset file
@@ -33,11 +34,11 @@ def plot_class_survival(df):
     # Create class labels based on normalized values
     df_copy = df.copy()
     def map_class(x):
-        if x < -1:
+        if x < -1:  # Most negative values = 1st class (best)
             return '1st Class'
-        elif x < 0.5:
+        elif x > 0.5:  # Most positive values = 3rd class (worst)
             return '3rd Class' 
-        else:
+        else:  # Middle values = 2nd class
             return '2nd Class'
     
     df_copy['Class'] = df_copy['Pclass'].apply(map_class)
@@ -61,27 +62,88 @@ def plot_class_survival(df):
 
 # 3. Age Distribution and Survival
 def plot_age_survival(df):
-    plt.figure(figsize=(10, 6))
-    sns.histplot(data=df, x='Age', hue='Survived', kde=True, bins=30, palette='coolwarm', alpha=0.7)
+    # Convert normalized age back to approximate real ages
+    # Assuming the normalization was: (age - mean) / std
+    # We'll create age groups based on normalized values
+    df_copy = df.copy()
+    
+    # Map normalized age values to approximate age ranges
+    def map_age_group(norm_age):
+        if norm_age < -1.5:
+            return "0-15 (Children)"
+        elif norm_age < -0.5:
+            return "16-25 (Young Adults)"
+        elif norm_age < 0.5:
+            return "26-35 (Adults)"
+        elif norm_age < 1.5:
+            return "36-50 (Middle Age)"
+        else:
+            return "51+ (Elderly)"
+    
+    df_copy['AgeGroup'] = df_copy['Age'].apply(map_age_group)
+    
+    # Create survival analysis by age groups
+    age_survival = df_copy.groupby(['AgeGroup', 'Survived']).size().unstack(fill_value=0)
+    
+    plt.figure(figsize=(12, 6))
+    age_survival.plot(kind='bar', stacked=True, color=['lightcoral', 'lightgreen'], alpha=0.8)
     plt.title('Age Distribution and Survival Rates', fontsize=16)
-    plt.xlabel('Age', fontsize=12)
-    plt.ylabel('Count', fontsize=12)
+    plt.xlabel('Age Groups', fontsize=12)
+    plt.ylabel('Number of Passengers', fontsize=12)
+    plt.legend(['Did Not Survive', 'Survived'], title='Survival')
+    plt.tight_layout()
     plt.savefig('images/age_survival.png')
     plt.close()
 
 # 4. Family Size and Survival
 def plot_family_survival(df):
-    df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
-    family_survival = df.groupby('FamilySize')['Survived'].mean()
-    plt.figure(figsize=(10, 6))
-    sns.lineplot(x=family_survival.index, y=family_survival.values, marker='o', color='green')
-    plt.title('Survival Rates by Family Size', fontsize=16, pad=20)  # Add padding to the title
+    # Load the original training data to get unscaled FamilySize
+    original_df = pd.read_csv('data/train.csv')
+    df_copy = df.copy()
+    
+    # Add original FamilySize to the cleaned dataframe
+    df_copy['FamilySize'] = original_df['SibSp'] + original_df['Parch'] + 1
+
+    def map_family_size(size):
+        if size == 1:
+            return "1 (Alone)"
+        elif size <= 3:
+            return "2-3 (Small Family)"
+        elif size <= 5:
+            return "4-5 (Medium Family)"
+        else:
+            return "6+ (Large Family)"
+    
+    df_copy['FamilySizeGroup'] = df_copy['FamilySize'].apply(map_family_size)
+    
+    # Group by family size group and calculate survival stats
+    family_stats = df_copy.groupby('FamilySizeGroup').agg({
+        'Survived': ['mean', 'count']
+    }).round(3)
+    
+    # Flatten column names
+    family_stats.columns = ['survival_rate', 'count']
+    
+    # Reorder categories logically
+    category_order = ["1 (Alone)", "2-3 (Small Family)", "4-5 (Medium Family)", "6+ (Large Family)"]
+    family_stats = family_stats.reindex([cat for cat in category_order if cat in family_stats.index])
+    
+    plt.figure(figsize=(12, 6))
+    
+    # Create bar plot with smaller bar width to prevent overlap
+    colors = ['gold', 'lightcoral', 'lightblue', 'lightgreen']
+    bars = plt.bar(range(len(family_stats)), family_stats['survival_rate'], 
+                   color=colors[:len(family_stats)], 
+                   alpha=0.8, edgecolor='darkblue', width=0.6)
+    
+    plt.title('Survival Rates by Family Size Group', fontsize=16, pad=20)
     plt.ylabel('Survival Rate', fontsize=12)
-    plt.xlabel('Family Size', fontsize=12)
+    plt.xlabel('Family Size Group', fontsize=12)
     plt.ylim(0, 1)
-    for i, v in enumerate(family_survival.values):
-        plt.text(family_survival.index[i], v + 0.02, f'{v:.1%}', ha='center', fontsize=10)
-    plt.tight_layout()  # Ensure proper spacing
+    plt.xticks(range(len(family_stats)), family_stats.index, rotation=0, ha='center')
+    
+    plt.grid(axis='y', alpha=0.3)
+    plt.tight_layout()
     plt.savefig('images/family_survival.png')
     plt.close()
 
