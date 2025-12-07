@@ -8,8 +8,8 @@ data = data.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin', 'Embarked', 
 data['Sex'] = data['Sex'].map({'male': 0, 'female': 1})
 data['Age'] = data['Age'].fillna(data['Age'].mean())
 
-missing_values = data_cleaned.isnull().sum()
+missing_values = data.isnull().sum()
 print(missing_values)
 
 
-data_cleaned.to_csv('data/train_cleaned.csv', index=False)
+data.to_csv('data/train_cleaned.csv', index=False)
