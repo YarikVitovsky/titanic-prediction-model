@@ -14,6 +14,6 @@ missing_values = data.isnull().sum()
 print(missing_values)
 
 scaled_data = scaler.fit_transform(data) #NumPy Object
-data = pd.DataFrame(scaled_data, columns=data.columns) #converting back togit data frame
+data = pd.DataFrame(scaled_data, columns=data.columns) #converting back to data frame
 
 data.to_csv('data/train_cleaned.csv', index=False)
