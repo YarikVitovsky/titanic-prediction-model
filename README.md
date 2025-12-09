@@ -10,7 +10,7 @@ This project goes beyond traditional machine learning to explore the human stori
 
 🚀 **Check out the live demo**: [https://titanic-survival-predictor-1.onrender.com/](https://titanic-survival-predictor-1.onrender.com/)
 
-📖 **Read the Project Report**: [Project-Report.pdf](https://github.com/YarikVitovsky/titanic-dataset/blob/main/Project-Report.pdf)
+📖 **Read the Project Thesis**: [Project-Thesis.pdf](https://github.com/YarikVitovsky/titanic-dataset/blob/main/Project-Thesis.pdf)
 
 ---
 
